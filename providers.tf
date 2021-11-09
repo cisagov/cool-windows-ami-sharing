@@ -1,13 +1,25 @@
-# This is an example of what a provider looks like.
-#
-# provider "aws" {
-#   alias = "myprovider"
-#   assume_role {
-#     role_arn     = "arn:aws:iam::123456789012:role/MyRole"
-#     session_name = "MySessionName"
-#   }
-#   default_tags {
-#     tags = var.tags
-#   }
-#   region = var.aws_region
-# }
+locals {
+  tags = {
+    Team        = "CISA - Development"
+    Application = "cool-windows-ami-sharing"
+  }
+}
+
+# Default AWS provider (EC2AMICreate role in the Images account)
+provider "aws" {
+  default_tags {
+    tags = local.tags
+  }
+  profile = "cool-images-ec2amicreate"
+  region  = "us-east-1"
+}
+
+# AWS provider for the Master account (OrganizationsReadOnly role)
+provider "aws" {
+  alias = "master"
+  default_tags {
+    tags = local.tags
+  }
+  profile = "cool-master-organizationsreadonly"
+  region  = "us-east-1"
+}

@@ -1,20 +1,35 @@
 # ------------------------------------------------------------------------------
-# Deploy the example AMI from cisagov/skeleton-packer in AWS.
+# Retrieve the information for all accounts in the organization.  This is used to lookup
+# the Images account ID for use in the calculation of the related env account names.
 # ------------------------------------------------------------------------------
+data "aws_organizations_organization" "cool" {
+  provider = aws.master
+}
 
 # ------------------------------------------------------------------------------
-# Look up the latest example AMI from cisagov/skeleton-packer.
-#
-# NOTE: This Terraform data source must return at least one AMI result
-# or the apply will fail.
+# Evaluate expressions for use throughout this configuration.
 # ------------------------------------------------------------------------------
+locals {
+  # Find the Images account by id.
+  images_account_name = [
+    for x in data.aws_organizations_organization.cool.accounts :
+    x.name if x.id == data.aws_caller_identity.images.account_id
+  ][0]
 
-# The AMI from cisagov/skeleton-packer
-data "aws_ami" "example" {
+  # Calculate what the names of the accounts that are allowed to use
+  # this AMI should look like.  In this case the only accounts that
+  # are allowed to use this AMI are the env* accounts of the same type
+  # (production, staging, etc.) as the Images account.
+  images_account_type = trim(split("(", local.images_account_name)[1], ")")
+  account_name_regex  = format("^env[[:digit:]]+ \\(%s\\)$", local.images_account_type)
+}
+
+# The most-recent Windows AMI available
+data "aws_ami" "windows" {
   filter {
     name = "name"
     values = [
-      "example-hvm-*-x86_64-ebs",
+      "windows-hvm-*-x86_64-ebs",
     ]
   }
 
@@ -28,34 +43,20 @@ data "aws_ami" "example" {
     values = ["ebs"]
   }
 
-  owners = [
-    var.ami_owner_account_id
-  ]
+  owners      = [data.aws_caller_identity.images.account_id]
   most_recent = true
 }
 
-# The default tags configured for the default provider
-data "aws_default_tags" "default" {}
+# Assign launch permissions to the AMI
+module "ami_launch_permission" {
+  source = "github.com/cisagov/ami-launch-permission-tf-module"
 
-# The example EC2 instance
-resource "aws_instance" "example" {
-  ami               = data.aws_ami.example.id
-  instance_type     = "t3.micro"
-  availability_zone = "${var.aws_region}${var.aws_availability_zone}"
-  subnet_id         = var.subnet_id
-
-  # The tag or tags specified here will be merged with the provider's
-  # default tags.
-  tags = {
-    "Name" = "Example"
+  providers = {
+    aws        = aws
+    aws.master = aws.master
   }
-  # volume_tags does not yet inherit the default tags from the
-  # provider.  See hashicorp/terraform-provider-aws#19188 for more
-  # details.
-  volume_tags = merge(
-    data.aws_default_tags.default.tags,
-    {
-      "Name" = "Example"
-    },
-  )
+
+  account_name_regex   = local.account_name_regex
+  ami_id               = data.aws_ami.windows.id
+  extraorg_account_ids = var.extraorg_account_ids
 }
