@@ -38,7 +38,7 @@ terraform apply
 
 | Name | Type |
 |------|------|
-| [aws_ami.windows](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_ami_ids.historical_amis](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami_ids) | data source |
 | [aws_caller_identity.images](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_organizations_organization.cool](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/organizations_organization) | data source |
 
@@ -47,12 +47,13 @@ terraform apply
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | extraorg\_account\_ids | A list of AWS account IDs corresponding to "extra" accounts with which you want to share this AMI (e.g. ["123456789012"]).  Normally this variable is used to share an AMI with accounts that are not a member of the same AWS Organization as the account that owns the AMI. | `list(string)` | `[]` | no |
+| recent\_ami\_count | The number of most-recent AMIs for which to grant launch permission (e.g. "3").  If this variable is set to three, for example, then accounts will be granted permission to launch the three most recent AMIs (or all most recent AMIs, if there are only one or two of them in existence). | `number` | `12` | no |
 
 ## Outputs ##
 
 | Name | Description |
 |------|-------------|
-| accounts | A map whose keys are the IDs of the AWS accounts allowed to launch the AMI, and whose values are the aws\_ami\_launch\_permission resources for the corresponding launch permissions. |
+| launch\_permissions | The cisagov/ami-launch-permission-tf-module for each AMI to which launch permission is being granted. |
 
 ## Notes ##
 
