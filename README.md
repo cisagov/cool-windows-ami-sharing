@@ -14,19 +14,20 @@ terraform init -upgrade=true
 terraform apply
 ```
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements ##
 
 | Name | Version |
 |------|---------|
 | terraform | ~> 1.0 |
-| aws | ~> 3.38 |
+| aws | ~> 4.9 |
 
 ## Providers ##
 
 | Name | Version |
 |------|---------|
-| aws | ~> 3.38 |
-| aws.master | ~> 3.38 |
+| aws | ~> 4.9 |
+| aws.master | ~> 4.9 |
 
 ## Modules ##
 
@@ -54,6 +55,7 @@ terraform apply
 | Name | Description |
 |------|-------------|
 | launch\_permissions | The cisagov/ami-launch-permission-tf-module for each AMI to which launch permission is being granted. |
+<!-- END_TF_DOCS -->
 
 ## Notes ##
 
