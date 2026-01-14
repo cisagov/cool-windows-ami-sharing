@@ -1,6 +1,8 @@
 # cool-windows-ami-sharing #
 
 [![GitHub Build Status](https://github.com/cisagov/cool-windows-ami-sharing/workflows/build/badge.svg)](https://github.com/cisagov/cool-windows-ami-sharing/actions)
+[![License](https://img.shields.io/github/license/cisagov/cool-windows-ami-sharing)](https://spdx.org/licenses/)
+[![CodeQL](https://github.com/cisagov/cool-windows-ami-sharing/workflows/CodeQL/badge.svg)](https://github.com/cisagov/cool-windows-ami-sharing/actions/workflows/codeql-analysis.yml)
 
 This project provides access to the latest Windows AMI to all `env` accounts
 and any extra accounts specified. It duplicates the functionality seen in
