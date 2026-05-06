@@ -16,12 +16,10 @@ locals {
     x.name if x.id == data.aws_caller_identity.images.account_id
   ][0]
 
-  # Calculate what the names of the accounts that are allowed to use
-  # this AMI should look like.  In this case the only accounts that
-  # are allowed to use this AMI are the env* accounts of the same type
-  # (production, staging, etc.) as the Images account.
-  images_account_type = trim(split("(", local.images_account_name)[1], ")")
-  account_name_regex  = format("^env[[:digit:]]+ \\(%s\\)$", local.images_account_type)
+  # Define a regex for what account names that are allowed to use this AMI
+  # should look like.  The only accounts that are allowed to use this AMI are
+  # accounts named "env<digit(s)>", i.e. the dynamic assessment accounts.
+  account_name_regex = "^env[[:digit:]]+$"
 }
 
 # The IDs of all Windows AMIs
